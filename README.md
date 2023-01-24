@@ -1,6 +1,6 @@
 # Google Cloud Platform - How-To deploy Shiny Server and RStudio Server
 The ultimate guide to deploying Rstudio Open Source and Shiny Server Open Source at Google Cloud Platform
- - Updated on August 28th, 2018
+ - Updated on January 24th, 2023
 
 # Introduction
 With the advance of cloud computing, and the higher accessibility given to this platforms, there's an uprising trend to use the existing cloud services, and integrating it with one of the greatest statistical software in the market: R!
@@ -75,8 +75,8 @@ sudo apt-get upgrade
 
 After it went successfully, you'll need to add the R repository to the sources.list file, so that the Ubuntu will know where to fetch the application. The code chunk below adds a line to the repository list, then passes a key for the Ubuntu server to download R, updates the existing packages, and installs r-base and r-base dev.
 ```
-sudo sh -c 'echo "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/" >> /etc/apt/sources.list'
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
+wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | sudo gpg --dearmor -o /usr/share/keyrings/r-project.gpg
+echo "deb [signed-by=/usr/share/keyrings/r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" | sudo tee -a /etc/apt/sources.list.d/r-project.list
 sudo apt-get update
 sudo apt-get install r-base r-base-dev
 ```
@@ -118,8 +118,8 @@ Now, we have R installed on our virtual machines, and we need to install the RSt
 The following code will install gdebi, download the .deb file that contains the RStudio server file, and execute it.
 ```
 sudo apt-get install gdebi-core
-wget https://download2.rstudio.org/rstudio-server-1.1.456-amd64.deb
-sudo gdebi rstudio-server-1.1.456-amd64.deb
+wget https://download2.rstudio.org/server/bionic/amd64/rstudio-server-2022.07.2-576-amd64.deb
+sudo gdebi rstudio-server-2022.07.2-576-amd64.deb
 ```
 
 This execution will prompt you to agree with the installation of RStudio server, and if all went well, you'll see that the rstudio-server process is running.
@@ -145,8 +145,8 @@ To install the Shiny Server, we'll install the gdebi to execute the installation
 
 ```
 sudo apt-get install gdebi-core
-wget https://download3.rstudio.org/ubuntu-14.04/x86_64/shiny-server-1.5.7.907-amd64.deb
-sudo gdebi shiny-server-1.5.7.907-amd64.deb
+wget https://download3.rstudio.org/ubuntu-18.04/x86_64/shiny-server-1.5.19.995-amd64.deb
+sudo gdebi shiny-server-1.5.19.995-amd64.deb
 ```
 
 As well as with the RStudio Server installation, you'll be prompted to agree with the installation. If it all went successfully  you'll notice a shiny-server process up and running.
@@ -160,6 +160,7 @@ NOTE: Even though this might not be considered as a good practice in development
 ```
 sudo chmod 777 -R /srv/shiny-server/
 ```
+    
 
 # Final Remarks
 
@@ -173,3 +174,23 @@ The links below are easy links to the documentation for each of the features rev
 
 Thanks!
 Luis Paese
+
+
+# My - Two cents (L.P.):
+
+All Rshiny app is expected to be on:
+    /srv/shiny-server
+
+Place your app to folder or make symbolic link to `/srv/shiny-server`.
+
+Also the server config is located `/etc/shiny-server/shiny-server.conf`.
+You might need to change:
+    listen 3838; -> listen 80;
+    
+To monitor/change server status:
+
+    sudo systemctl restart shiny-server
+    sudo systemctl status shiny-server
+    sudo systemctl stop shiny-server
+
+L.
